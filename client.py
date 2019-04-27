@@ -1,7 +1,6 @@
 import requests
 import hashlib
 import hmac
-from setup import BINANCE_KEY, SECRET_KEY
 
 class Client(object):
 
