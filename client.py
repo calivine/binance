@@ -33,3 +33,7 @@ class Client(object):
     def get_order_book(self, request_params):
         response = self.session.get(self.API_URL + '/api/v1/depth', params=request_params)
         print(response.content)
+
+    def average_price(self, request_params):
+        response = self.session.get(self.API_URL + '/api/v3/avgPrice', params=request_params)
+        print(response.content)
