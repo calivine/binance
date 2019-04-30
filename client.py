@@ -1,6 +1,8 @@
 import requests
 import hashlib
 import hmac
+import time
+from operator import itemgetter
 
 
 class Client(object):
@@ -23,10 +25,44 @@ class Client(object):
                                 'X-MBX-APIKEY': self.API_KEY})
         return session
 
+    """ Credit and thanks to [samchardy](https://github.com/sammchardy/python-binance/blob/master/binance/client.py)
+        for _generate_signature and _order_params functions for user endpoint signing.
+    """
+
+    def _generate_signature(self, data):
+        ordered_data = self._order_params(data)
+        query_string = '&'.join(["{}={}".format(d[0], d[1]) for d in ordered_data])
+        m = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256)
+        return m.hexdigest()
+
+    def _order_params(self, data):
+        """Convert params to list with signature as last element
+        :param data:
+        :return:
+        """
+        has_signature = False
+        params = []
+        for key, value in data.items():
+            if key == 'signature':
+                has_signature = True
+            else:
+                params.append((key, value))
+        # sort parameters by key
+        params.sort(key=itemgetter(0))
+        if has_signature:
+            params.append(('signature', data['signature']))
+        return params
+
     def _get(self, path, signed=False, **kwargs):
-        print(kwargs['data'])
         v = self.PRIVATE if signed else self.PUBLIC
-        response = self.session.get(self.API_URL + v + '/' + path, params=kwargs['data'])
+        if (signed):
+            kwargs['data']['timestamp'] = int(time.time() * 1000)
+            kwargs['data']['signature'] = self._generate_signature(kwargs['data'])
+            kwargs['data'] = self._order_params(kwargs['data'])
+            kwargs['params'] = kwargs['data']
+            response = self.session.get(self.API_URL + v + '/' + path, params=kwargs['params'])
+        else:
+            response = self.session.get(self.API_URL + v + '/' + path, params=kwargs['data'])
         return response.json()
 
     def server_time(self):
@@ -67,3 +103,6 @@ class Client(object):
 
     def get_book_ticker(self, **params):
         return self._get('ticker/bookTicker', signed=True, data=params)
+
+    def get_account_info(self, **params):
+        return self._get('account', signed=True, data=params)
