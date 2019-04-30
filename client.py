@@ -2,6 +2,7 @@ import requests
 import hashlib
 import hmac
 
+
 class Client(object):
 
     API_URL = 'https://api.binance.com/api/'
@@ -22,6 +23,12 @@ class Client(object):
                                 'X-MBX-APIKEY': self.API_KEY})
         return session
 
+    def _get(self, path, signed=False, **kwargs):
+        print(kwargs['data'])
+        v = self.PRIVATE if signed else self.PUBLIC
+        response = self.session.get(self.API_URL + v + '/' + path, params=kwargs['data'])
+        return response.json()
+
     def server_time(self):
         response = self.session.get(self.API_URL + self.PUBLIC + '/time')
         print(response.content)
@@ -34,21 +41,17 @@ class Client(object):
         response = self.session.get(self.API_URL + self.PUBLIC + '/exchangeInfo')
         print(response.content)
 
-    def get_order_book(self, request_params):
-        response = self.session.get(self.API_URL + self.PUBLIC + '/depth', params=request_params)
-        return response.json()
+    def get_order_book(self, **params):
+        return self._get('depth', data=params)
 
-    def get_average_price(self, request_params):
-        response = self.session.get(self.API_URL + self.PRIVATE + '/avgPrice', params=request_params)
-        return response.json()
+    def get_average_price(self, **params):
+        return self._get('avgPrice', signed=True, data=params)
 
-    def get_trades_list(self, request_params):
-        response = self.session.get(self.API_URL + self.PUBLIC + '/trades', params=request_params)
-        return response.json()
+    def get_trades_list(self, **params):
+        return self._get('trades', signed=True, data=params)
 
-    def get_historical_trades(self, request_params):
-        response = self.session.get(self.API_URL + self.PUBLIC + '/historicalTrades', params=request_params)
-        return response.json()
+    def get_historical_trades(self, **params):
+        return self._get('historicalTrades', signed=False, data=params)
 
     def get_aggregate_trades(self, request_params):
         response = self.session.get(self.API_URL + self.PUBLIC + '/aggTrades', params=request_params)
