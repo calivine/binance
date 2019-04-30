@@ -53,31 +53,17 @@ class Client(object):
     def get_historical_trades(self, **params):
         return self._get('historicalTrades', signed=False, data=params)
 
-    def get_aggregate_trades(self, request_params):
-        response = self.session.get(self.API_URL + self.PUBLIC + '/aggTrades', params=request_params)
-        return response.json()
+    def get_aggregate_trades(self, **params):
+        return self._get('aggTrades', signed=False, data=params)
 
-    def get_candlesticks(self, request_params):
-        response = self.session.get(self.API_URL + self.PUBLIC + '/klines', params=request_params)
-        return response.json()
+    def get_candlesticks(self, **params):
+        return self._get('klines', signed=False, data=params)
 
-    def get_24_hr_price(self, request_params):
-        try:
-            response = self.session.get(self.API_URL + self.PUBLIC + '/ticker/24hr', params=request_params)
-        except:
-            print('Error. There was a problem with your request. Try again.')
-        return response.json()
+    def get_24_hr_price(self, **params):
+        return self._get('ticker/24hr', signed=False, data=params)
 
-    def get_price_ticker(self, request_params):
-        try:
-            response = self.session.get(self.API_URL + self.PRIVATE + '/ticker/price', params=request_params)
-        except:
-            print('Error. There was a problem with your request. Try again.')
-        return response.json()
+    def get_price_ticker(self, **params):
+        return self._get('ticker/price', signed=True, data=params)
 
-    def get_book_ticker(self, request_params):
-        try:
-            response = self.session.get(self.API_URL + self.PRIVATE + '/ticker/bookTicker', params=request_params)
-            return response.json()
-        except:
-            print('Error. There was a problem with your request. Try again.')
+    def get_book_ticker(self, **params):
+        return self._get('ticker/bookTicker', signed=True, data=params)
