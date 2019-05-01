@@ -5,7 +5,7 @@ By: *Alex Caloggero*
 
 ----
 ## General Information
-* Pass string queries in the form: {key: value, key: value, ...}.
+* Pass query strings as named arguments i.e. symbol='BTC', limit=5
 * Methods prefixed with 'get_' return a JSON object.
 * No authentication required for public requests.
 * Be mindful of API limits.
@@ -18,6 +18,8 @@ By: *Alex Caloggero*
     client = Client()
     client.ping()
     b'{}'
+
+    average_price = client.get_average_price(symbol='BTCUSDT')
 
 ----
 ## Methods for public Endpoints
